@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Graduation.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/v1/[controller]")]
     [ApiController]
     public class PlantsController(IPlantService plantService) : ControllerBase
     {

@@ -3,11 +3,11 @@
     public record OrderRequest
      (
 
-        string? HouseNum,
-        string? LandMark,
-        string? Street,
-        string? District,
-        string? City,
+        string HouseNum,
+        string LandMark,
+        string Street,
+        string District,
+        string City,
          double? PlantingLatitude,
         double? PlantingLongitude,
         DateOnly? ScheduledPlantingDate,

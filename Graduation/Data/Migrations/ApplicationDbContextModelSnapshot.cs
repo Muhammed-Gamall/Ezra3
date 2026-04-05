@@ -148,9 +148,6 @@ namespace Graduation.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
                     b.Property<string>("LandMark")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -222,12 +219,6 @@ namespace Graduation.Data.Migrations
                     b.Property<int>("PlantId")
                         .HasColumnType("int");
 
-                    b.Property<double>("PlantingServicePrice")
-                        .HasColumnType("float");
-
-                    b.Property<double>("UnitPrice")
-                        .HasColumnType("float");
-
                     b.HasKey("Id");
 
                     b.HasIndex("FarmerProfileId");
@@ -274,7 +265,7 @@ namespace Graduation.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<double?>("PlantingServicePrice")
+                    b.Property<double>("PlantingServicePrice")
                         .HasColumnType("float");
 
                     b.Property<double>("Price")

@@ -19,3 +19,4 @@ global using Graduation.Entities;
 global using Graduation.Data;
 global using Graduation.Services;
 global using Graduation.Contracts.User;
+global using Graduation.Contracts.Order;

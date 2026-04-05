@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Graduation.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/v1/[controller]")]
     [ApiController]
     [Authorize]
     public class UserProfilesController(IUserService userService) : ControllerBase

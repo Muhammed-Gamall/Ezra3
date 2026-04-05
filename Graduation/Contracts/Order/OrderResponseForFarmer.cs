@@ -2,11 +2,13 @@
 {
     public record OrderResponseForFarmer
     (
-        string? HouseNum,
-        string? LandMark,
-        string? Street,
-        string? District,
-        string? City,
+        double PaidAmount,
+        double TotalAmount,
+        string HouseNum,
+        string LandMark,
+        string Street,
+        string District,
+        string City,
          double? PlantingLatitude,
         double? PlantingLongitude,
         DateOnly? ScheduledPlantingDate,
@@ -15,6 +17,6 @@
         bool RequiresPlanting,
         string? CustomerName,
         string Status,
-        List<OrderItemResponse> Items
+        IEnumerable<OrderItemResponse> Items
         );
 }

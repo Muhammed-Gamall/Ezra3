@@ -1,7 +1,8 @@
 ﻿
 namespace Graduation.Data
 {
-    public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options , IHttpContextAccessor accessor) : IdentityDbContext(options)
+    public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options , IHttpContextAccessor accessor) 
+        : IdentityDbContext(options)
     {
         private readonly IHttpContextAccessor _accessor = accessor;
 
@@ -12,7 +13,6 @@ namespace Graduation.Data
         public DbSet<Plant> Plants { get; set; } 
         public DbSet<PlantPhoto> PlantPhotos { get; set; } 
         public DbSet<UserProfile> UserProfiles { get; set; }
-
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

@@ -2,8 +2,6 @@
 {
     public record OrderItemRequest
     (
-        int PlantId,
-        double UnitPrice,
-        double PlantingServicePrice
+        int PlantId
     );
 }

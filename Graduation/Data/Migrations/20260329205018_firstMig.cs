@@ -206,7 +206,7 @@ namespace Graduation.Data.Migrations
                     SuitableLocation = table.Column<int>(type: "int", nullable: false),
                     CareTips = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Price = table.Column<double>(type: "float", nullable: false),
-                    PlantingServicePrice = table.Column<double>(type: "float", nullable: true),
+                    PlantingServicePrice = table.Column<double>(type: "float", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
                     CreatedById = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -259,11 +259,26 @@ namespace Graduation.Data.Migrations
                     Rating = table.Column<double>(type: "float", nullable: false),
                     Review = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    FarmerId = table.Column<int>(type: "int", nullable: false)
+                    FarmerId = table.Column<int>(type: "int", nullable: false),
+                    CreatedById = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedById = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_FarmerRatings", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_FarmerRatings_AspNetUsers_CreatedById",
+                        column: x => x.CreatedById,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_FarmerRatings_AspNetUsers_UpdatedById",
+                        column: x => x.UpdatedById,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_FarmerRatings_AspNetUsers_UserId",
                         column: x => x.UserId,
@@ -318,7 +333,6 @@ namespace Graduation.Data.Migrations
                     ScheduledPlantingDate = table.Column<DateOnly>(type: "date", nullable: true),
                     Phone = table.Column<int>(type: "int", nullable: false),
                     Notes = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
                     CustomerId = table.Column<int>(type: "int", nullable: false),
                     FarmerId = table.Column<int>(type: "int", nullable: true),
@@ -368,8 +382,6 @@ namespace Graduation.Data.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     OrderId = table.Column<int>(type: "int", nullable: false),
                     PlantId = table.Column<int>(type: "int", nullable: false),
-                    UnitPrice = table.Column<double>(type: "float", nullable: false),
-                    PlantingServicePrice = table.Column<double>(type: "float", nullable: false),
                     FarmerProfileId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
@@ -449,9 +461,19 @@ namespace Graduation.Data.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_FarmerRatings_CreatedById",
+                table: "FarmerRatings",
+                column: "CreatedById");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_FarmerRatings_FarmerId",
                 table: "FarmerRatings",
                 column: "FarmerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FarmerRatings_UpdatedById",
+                table: "FarmerRatings",
+                column: "UpdatedById");
 
             migrationBuilder.CreateIndex(
                 name: "IX_FarmerRatings_UserId",

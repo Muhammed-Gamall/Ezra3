@@ -37,26 +37,11 @@ namespace Graduation.Services
                 .Where(x=>x.IsActive && x.Id == id)
                 .Include(r=>r.Ratings).AsNoTracking()
                 .ProjectToType<FarmerResponse>().SingleOrDefaultAsync(cancellation);
-            //if (farmer == null)
-            //   throw new Exception("Farmer profile not found.");
-            
-            //var response = new FarmerResponse
-            //(
-            //     farmer.Id,
-            //     farmer.Name,
-            //     farmer.ProfessionalDescription,
-            //     farmer.Ratings.Select(r => new FarmerRatingResponse
-            //    (
-            //        r.Id,
-            //        r.Rating,
-            //        r.Review
-            //   )).ToList()
-            //);
+      
             return farmer!;
         }
         public async Task<IEnumerable<FarmerRatingResponse>> GetFarmerRatings(int id, CancellationToken cancellation)
         {
-            //var userId = GetUserId();
 
             var ratings = await _context.FarmerProfiles
                 .Where(x => x.Id == id)

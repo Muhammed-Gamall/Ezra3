@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Graduation.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260326201117_addAuditableEntityForFarmerRating")]
-    partial class addAuditableEntityForFarmerRating
+    [Migration("20260329205018_firstMig")]
+    partial class firstMig
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -151,9 +151,6 @@ namespace Graduation.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
                     b.Property<string>("LandMark")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -225,12 +222,6 @@ namespace Graduation.Data.Migrations
                     b.Property<int>("PlantId")
                         .HasColumnType("int");
 
-                    b.Property<double>("PlantingServicePrice")
-                        .HasColumnType("float");
-
-                    b.Property<double>("UnitPrice")
-                        .HasColumnType("float");
-
                     b.HasKey("Id");
 
                     b.HasIndex("FarmerProfileId");
@@ -277,7 +268,7 @@ namespace Graduation.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<double?>("PlantingServicePrice")
+                    b.Property<double>("PlantingServicePrice")
                         .HasColumnType("float");
 
                     b.Property<double>("Price")
