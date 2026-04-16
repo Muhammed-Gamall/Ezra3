@@ -88,7 +88,7 @@ Standard ASP.NET Core Identity endpoints are mapped at the root for registration
 
 1. **Clone the repository**
    ```bash
-   git clone <repo-url>
+   git clone https://github.com/Muhammed-Gamall/Ezra3.git
    cd Graduation
    ```
 
