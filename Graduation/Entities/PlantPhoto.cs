@@ -9,7 +9,7 @@
 
         public bool IsActive { get; set; } = true;
 
-        public int PlantId { get; set; } 
-        public Plant Plant { get; set; } = default!;
+        public int PlantId { get; set; }
+        public Plant Plant { get; set; }  = default!;
     }
 }

@@ -3,8 +3,7 @@
     public record OrderItemResponse
     (
         int Id,
-        string PlantName,
-        double UnitPrice,
-        double PlantingServicePrice
+        string PlantName
+    
     );
 }

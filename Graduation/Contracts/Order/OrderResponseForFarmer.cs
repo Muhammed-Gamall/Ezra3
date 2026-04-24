@@ -2,6 +2,7 @@
 {
     public record OrderResponseForFarmer
     (
+          int  Id,
         double PaidAmount,
         double TotalAmount,
         string HouseNum,
@@ -12,10 +13,11 @@
          double? PlantingLatitude,
         double? PlantingLongitude,
         DateOnly? ScheduledPlantingDate,
-        int Phone,
+        string Phone,
         string? Notes,
         bool RequiresPlanting,
-        string? CustomerName,
+        string CustomerFName,
+        string CustomerLName,
         string Status,
         IEnumerable<OrderItemResponse> Items
         );

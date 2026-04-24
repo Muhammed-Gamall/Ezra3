@@ -6,10 +6,8 @@
         public double Rating { get; set; } = 0;
         public string? Review { get; set; }
 
-        public string UserId { get; set; } = string.Empty;
-        public IdentityUser User { get; set; } = default!;
-
-        public int FarmerId { get; set; } 
+        //don't need to store the customer id because we can get it from the audit logging
+        public string FarmerId { get; set; } = string.Empty;
         public FarmerProfile Farmer { get; set; } = default!;
     }
 }

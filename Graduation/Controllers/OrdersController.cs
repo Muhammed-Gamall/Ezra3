@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Graduation.Controllers
@@ -10,14 +11,16 @@ namespace Graduation.Controllers
         private readonly IOrderService _orderService = orderService;
 
 
-        [HttpGet("{farmerId}")]
-        public async Task<IActionResult> AllOrders(int farmerId, CancellationToken cancellation)
+        [HttpGet("AllForFarmer")]
+        [Authorize]
+        public async Task<IActionResult> AllOrders( CancellationToken cancellation)
         {
-            var orders = await _orderService.GetAllOrdersForFarmer(farmerId, cancellation);
+            var orders = await _orderService.GetAllOrdersForFarmer(cancellation);
             return Ok(orders);
         }
 
         [HttpGet("AllForUser")]
+        [Authorize]
         public async Task<IActionResult> AllOrdersForUser(CancellationToken cancellation)
         {
             var orders = await _orderService.GetAllOrdersAsync(cancellation);
@@ -38,25 +41,38 @@ namespace Graduation.Controllers
             return Ok(orders);
         }
 
-        [HttpPost("{CustomerId}")]
-        public async Task<IActionResult> CreateOrder(int CustomerId, OrderRequest request, CancellationToken cancellation)
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> CreateOrder( OrderRequest request, CancellationToken cancellation)
         {
-            var order = await _orderService.CreateOrderAsync(CustomerId, request, cancellation);
+            var order = await _orderService.CreateOrderAsync( request, cancellation);
             return Ok(order);
         }
 
         [HttpPut]
+        [Authorize]
         public async Task<IActionResult> UpdateOrder(OrderRequest request, int orderId, CancellationToken cancellation)
         {
-            var order = await _orderService.UpdateOrderAsync(request, orderId, cancellation);
-            return Ok(order);
+            var result = await _orderService.UpdateOrderAsync(request, orderId, cancellation);
+            return result ? NoContent() : NotFound("order not found");
         }
 
         [HttpPut("{orderId}/ChangeStatus")]
+        [Authorize]
         public async Task<IActionResult> ChangeOrderStatus(string status, int orderId, CancellationToken cancellation)
         {
-            await _orderService.ChangeOrderStatus(status, orderId, cancellation);
-            return NoContent();
+           var result = await _orderService.ChangeOrderStatus(status, orderId, cancellation);
+
+            return result ? NoContent() : NotFound("order not found");
+        }
+
+        [HttpPut("{orderId}/AddFarmer")]
+        [Authorize]
+        public async Task<IActionResult> AddFarmer(string farmerId, int orderId, CancellationToken cancellation)
+        {
+            var result = await _orderService.AddFarmer(farmerId, orderId, cancellation);
+            return result ? NoContent() : NotFound("order not found");
+
         }
     }
 }

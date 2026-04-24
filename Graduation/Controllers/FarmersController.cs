@@ -14,39 +14,39 @@
             return Ok(farmer);
         }
 
-        [HttpGet("{id}/ForUser")]
-        public async Task<IActionResult> GetFarmerByUser(int id,CancellationToken cancellation)
+        [HttpGet("{userId}/ForUser")]
+        public async Task<IActionResult> GetFarmerByUser(string userId, CancellationToken cancellation)
         {
-            var farmer = await _service.GetFarmerByUser(id, cancellation);
+            var farmer = await _service.GetFarmerByUser( userId, cancellation);
             return Ok(farmer);
         }
 
-        [HttpGet("{id}/Rating")]
-        public async Task<IActionResult> GetFarmerRating(int id, CancellationToken cancellation)
+        [HttpGet("{userId}/Rating")]
+        public async Task<IActionResult> GetFarmerRating(string userId, CancellationToken cancellation)
         {
-            var farmer = await _service.GetFarmerRatings(id, cancellation);
+            var farmer = await _service.GetFarmerRatings( userId, cancellation);
             return Ok(farmer);
         }
 
         [Authorize]
         [HttpPost]
-        public async Task<IActionResult> CreateFarmerProfile(FarmerRequest request , CancellationToken cancellation)
+        public async Task<IActionResult> CreateFarmerProfile(string ProfessionalDescription, CancellationToken cancellation)
         {
-            var farmer = await _service.CreateFarmerProfile(request, cancellation);
+            var farmer = await _service.CreateFarmerProfile(ProfessionalDescription, cancellation);
             return Ok(farmer);
         }
 
         [Authorize]
-        [HttpPost("{id}/Rating")]
-        public async Task<IActionResult> CreateRating(FarmerRatingRequest request , int id, CancellationToken cancellation)
+        [HttpPost("{userId}/Rating")]
+        public async Task<IActionResult> CreateRating(FarmerRatingRequest request, string userId, CancellationToken cancellation)
         {
-            var farmer = await _service.CreateRatingRequest(request,  id, cancellation);
+            var farmer = await _service.CreateRatingRequest(request,  userId, cancellation);
             return Ok(farmer);
         }
 
         [Authorize]
         [HttpPut]
-        public async Task<IActionResult> UpdateFarmer(FarmerRequest request , CancellationToken cancellation)
+        public async Task<IActionResult> UpdateFarmer(FarmerRequest request, CancellationToken cancellation)
         {
             var farmer = await _service.UpdateFarmer(request, cancellation);
             return Ok(farmer);
@@ -54,10 +54,10 @@
 
         [Authorize]
         [HttpPut("Toggle")]
-        public async Task<IActionResult> Toggle(FarmerRequest request , CancellationToken cancellation)
+        public async Task<IActionResult> Toggle(CancellationToken cancellation)
         {
-            await _service.Toggle( cancellation);
-            return Ok();
+          var  farmer = await _service.Toggle(cancellation);
+            return farmer is true? Ok() : NotFound();
         }
     }
 }

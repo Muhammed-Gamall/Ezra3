@@ -2,7 +2,7 @@
 namespace Graduation.Data
 {
     public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options , IHttpContextAccessor accessor) 
-        : IdentityDbContext(options)
+        : IdentityDbContext<ApplicationUser>(options)
     {
         private readonly IHttpContextAccessor _accessor = accessor;
 
@@ -12,7 +12,7 @@ namespace Graduation.Data
         public DbSet<OrderItem> OrderItems { get; set; } 
         public DbSet<Plant> Plants { get; set; } 
         public DbSet<PlantPhoto> PlantPhotos { get; set; } 
-        public DbSet<UserProfile> UserProfiles { get; set; }
+        //public DbSet<UserProfile> UserProfiles { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -24,7 +24,6 @@ namespace Graduation.Data
 
             foreach (var fk in CascadeFKs)
                 fk.DeleteBehavior = DeleteBehavior.Restrict;
-
 
             base.OnModelCreating(modelBuilder);
         }

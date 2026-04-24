@@ -3,10 +3,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace Graduation.Data.Migrations
+namespace Graduation.Data.Mirations
 {
     /// <inheritdoc />
-    public partial class firstMig : Migration
+    public partial class firstOne : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -30,6 +30,10 @@ namespace Graduation.Data.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    FName = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    LName = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    IsCasualUser = table.Column<bool>(type: "bit", nullable: false),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -160,31 +164,12 @@ namespace Graduation.Data.Migrations
                 name: "FarmerProfiles",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ProfessionalDescription = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false),
-                    CreatedById = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedById = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    ProfessionalDescription = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_FarmerProfiles", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_FarmerProfiles_AspNetUsers_CreatedById",
-                        column: x => x.CreatedById,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_FarmerProfiles_AspNetUsers_UpdatedById",
-                        column: x => x.UpdatedById,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id");
+                    table.PrimaryKey("PK_FarmerProfiles", x => x.UserId);
                     table.ForeignKey(
                         name: "FK_FarmerProfiles_AspNetUsers_UserId",
                         column: x => x.UserId,
@@ -230,24 +215,26 @@ namespace Graduation.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "UserProfiles",
+                name: "RefreshTokens",
                 columns: table => new
                 {
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false)
+                    Token = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ExpiresOn = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    RevokedOn = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UserProfiles", x => x.Id);
+                    table.PrimaryKey("PK_RefreshTokens", x => new { x.UserId, x.Id });
                     table.ForeignKey(
-                        name: "FK_UserProfiles_AspNetUsers_UserId",
+                        name: "FK_RefreshTokens_AspNetUsers_UserId",
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -258,8 +245,7 @@ namespace Graduation.Data.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Rating = table.Column<double>(type: "float", nullable: false),
                     Review = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    FarmerId = table.Column<int>(type: "int", nullable: false),
+                    FarmerId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     CreatedById = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedById = table.Column<string>(type: "nvarchar(450)", nullable: true),
@@ -280,17 +266,69 @@ namespace Graduation.Data.Migrations
                         principalTable: "AspNetUsers",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_FarmerRatings_AspNetUsers_UserId",
+                        name: "FK_FarmerRatings_FarmerProfiles_FarmerId",
+                        column: x => x.FarmerId,
+                        principalTable: "FarmerProfiles",
+                        principalColumn: "UserId",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Orders",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    FarmerId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    RequiresPlanting = table.Column<bool>(type: "bit", nullable: false),
+                    HouseNum = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    LandMark = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Street = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    District = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    City = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PlantingLatitude = table.Column<double>(type: "float", nullable: true),
+                    PlantingLongitude = table.Column<double>(type: "float", nullable: true),
+                    ScheduledPlantingDate = table.Column<DateOnly>(type: "date", nullable: true),
+                    Phone = table.Column<int>(type: "int", nullable: false),
+                    Notes = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    FarmerProfileUserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    CreatedById = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedById = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Orders", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Orders_AspNetUsers_CreatedById",
+                        column: x => x.CreatedById,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Orders_AspNetUsers_FarmerId",
+                        column: x => x.FarmerId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Orders_AspNetUsers_UpdatedById",
+                        column: x => x.UpdatedById,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Orders_AspNetUsers_UserId",
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_FarmerRatings_FarmerProfiles_FarmerId",
-                        column: x => x.FarmerId,
+                        name: "FK_Orders_FarmerProfiles_FarmerProfileUserId",
+                        column: x => x.FarmerProfileUserId,
                         principalTable: "FarmerProfiles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        principalColumn: "UserId");
                 });
 
             migrationBuilder.CreateTable(
@@ -316,82 +354,17 @@ namespace Graduation.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Orders",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    RequiresPlanting = table.Column<bool>(type: "bit", nullable: false),
-                    HouseNum = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    LandMark = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Street = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    District = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    City = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PlantingLatitude = table.Column<double>(type: "float", nullable: true),
-                    PlantingLongitude = table.Column<double>(type: "float", nullable: true),
-                    ScheduledPlantingDate = table.Column<DateOnly>(type: "date", nullable: true),
-                    Phone = table.Column<int>(type: "int", nullable: false),
-                    Notes = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Status = table.Column<int>(type: "int", nullable: false),
-                    CustomerId = table.Column<int>(type: "int", nullable: false),
-                    FarmerId = table.Column<int>(type: "int", nullable: true),
-                    CreatedById = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    CreatedOn = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    UpdatedById = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    UpdatedOn = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Orders", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Orders_AspNetUsers_CreatedById",
-                        column: x => x.CreatedById,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Orders_AspNetUsers_UpdatedById",
-                        column: x => x.UpdatedById,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Orders_AspNetUsers_UserId",
-                        column: x => x.UserId,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Orders_FarmerProfiles_FarmerId",
-                        column: x => x.FarmerId,
-                        principalTable: "FarmerProfiles",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Orders_UserProfiles_CustomerId",
-                        column: x => x.CustomerId,
-                        principalTable: "UserProfiles",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "OrderItems",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     OrderId = table.Column<int>(type: "int", nullable: false),
-                    PlantId = table.Column<int>(type: "int", nullable: false),
-                    FarmerProfileId = table.Column<int>(type: "int", nullable: true)
+                    PlantId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_OrderItems", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_OrderItems_FarmerProfiles_FarmerProfileId",
-                        column: x => x.FarmerProfileId,
-                        principalTable: "FarmerProfiles",
-                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_OrderItems_Orders_OrderId",
                         column: x => x.OrderId,
@@ -446,21 +419,6 @@ namespace Graduation.Data.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
-                name: "IX_FarmerProfiles_CreatedById",
-                table: "FarmerProfiles",
-                column: "CreatedById");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_FarmerProfiles_UpdatedById",
-                table: "FarmerProfiles",
-                column: "UpdatedById");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_FarmerProfiles_UserId",
-                table: "FarmerProfiles",
-                column: "UserId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_FarmerRatings_CreatedById",
                 table: "FarmerRatings",
                 column: "CreatedById");
@@ -474,16 +432,6 @@ namespace Graduation.Data.Migrations
                 name: "IX_FarmerRatings_UpdatedById",
                 table: "FarmerRatings",
                 column: "UpdatedById");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_FarmerRatings_UserId",
-                table: "FarmerRatings",
-                column: "UserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_OrderItems_FarmerProfileId",
-                table: "OrderItems",
-                column: "FarmerProfileId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_OrderItems_OrderId",
@@ -501,14 +449,14 @@ namespace Graduation.Data.Migrations
                 column: "CreatedById");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Orders_CustomerId",
-                table: "Orders",
-                column: "CustomerId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Orders_FarmerId",
                 table: "Orders",
                 column: "FarmerId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Orders_FarmerProfileUserId",
+                table: "Orders",
+                column: "FarmerProfileUserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Orders_UpdatedById",
@@ -534,11 +482,6 @@ namespace Graduation.Data.Migrations
                 name: "IX_Plants_UpdatedById",
                 table: "Plants",
                 column: "UpdatedById");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_UserProfiles_UserId",
-                table: "UserProfiles",
-                column: "UserId");
         }
 
         /// <inheritdoc />
@@ -569,6 +512,9 @@ namespace Graduation.Data.Migrations
                 name: "PlantPhotos");
 
             migrationBuilder.DropTable(
+                name: "RefreshTokens");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
@@ -579,9 +525,6 @@ namespace Graduation.Data.Migrations
 
             migrationBuilder.DropTable(
                 name: "FarmerProfiles");
-
-            migrationBuilder.DropTable(
-                name: "UserProfiles");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");

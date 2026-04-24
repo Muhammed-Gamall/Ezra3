@@ -11,7 +11,7 @@
          double? PlantingLatitude,
         double? PlantingLongitude,
         DateOnly? ScheduledPlantingDate,
-        int Phone,
+        string Phone,
         string? Notes,
         bool RequiresPlanting,
         List<OrderItemRequest> Items

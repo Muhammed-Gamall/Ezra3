@@ -2,9 +2,10 @@
 {
     public record FarmerResponse
     (
-          int Id,
-         string Name,
+          string UserId,
+          string FName,
+          string LName,
         string? ProfessionalDescription,
-        List<FarmerRatingResponse> Ratings
+        IEnumerable<FarmerRatingResponse> Ratings
     );
 }

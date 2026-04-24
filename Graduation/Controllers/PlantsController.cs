@@ -36,11 +36,11 @@ namespace Graduation.Controllers
         [Authorize]
         public async Task<IActionResult> Update([FromForm] PlantRequest request, int Id, CancellationToken cancellation)
         {
-            var plant = await plantService.UpdateAsync(request,Id , cancellation);
+            var plant = await plantService.UpdateAsync(request, Id, cancellation);
             return Ok(plant);
         }
 
-        [HttpPost("{id}")]
+        [HttpPut("{id}/Toggle")]
         [Authorize]
         public async Task<IActionResult> Toggle(int id, CancellationToken cancellation)
         {

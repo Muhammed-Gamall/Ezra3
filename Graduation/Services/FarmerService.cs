@@ -5,16 +5,16 @@ namespace Graduation.Services
     public interface IFarmerService
     {
         Task<FarmerResponse> GetFarmerByFarmer(CancellationToken cancellation);
-        Task<FarmerResponse> GetFarmerByUser(int id, CancellationToken cancellation);
-        Task<IEnumerable<FarmerRatingResponse>> GetFarmerRatings(int id, CancellationToken cancellation);
-        Task<FarmerResponse> CreateFarmerProfile(FarmerRequest request , CancellationToken cancellation);
-        Task<FarmerRatingResponse?> CreateRatingRequest(FarmerRatingRequest request, int Id , CancellationToken cancellation);
-        Task<FarmerResponse> UpdateFarmer(FarmerRequest request , CancellationToken cancellation);
-        Task Toggle( CancellationToken cancellation);
+        Task<FarmerResponse> GetFarmerByUser(string userId, CancellationToken cancellation);
+        Task<IEnumerable<FarmerRatingResponse>> GetFarmerRatings(string userId, CancellationToken cancellation);
+        Task<FarmerResponse> CreateFarmerProfile(string professionalDescription, CancellationToken cancellation);
+        Task<FarmerRatingResponse?> CreateRatingRequest(FarmerRatingRequest request, string userId, CancellationToken cancellation);
+        Task<bool> UpdateFarmer(FarmerRequest request, CancellationToken cancellation);
+        Task<bool> Toggle(CancellationToken cancellation);
 
     }
 
-    public class FarmerService(ApplicationDbContext context , IHttpContextAccessor accessor) : IFarmerService
+    public class FarmerService(ApplicationDbContext context, IHttpContextAccessor accessor) : IFarmerService
     {
         private readonly ApplicationDbContext _context = context;
         private readonly IHttpContextAccessor _accessor = accessor;
@@ -25,26 +25,44 @@ namespace Graduation.Services
             var userId = GetUserId();
 
             var farmer = await _context.FarmerProfiles
-                .Where(x=>x.IsActive && x.UserId==userId)
-                .Include(r=>r.Ratings).AsNoTracking()
-                .ProjectToType<FarmerResponse>().SingleOrDefaultAsync(cancellation);
-     
-            return farmer!;
-        }
-        public async Task<FarmerResponse> GetFarmerByUser(int id ,CancellationToken cancellation)
-        {
-           var farmer = await _context.FarmerProfiles
-                .Where(x=>x.IsActive && x.Id == id)
-                .Include(r=>r.Ratings).AsNoTracking()
-                .ProjectToType<FarmerResponse>().SingleOrDefaultAsync(cancellation);
-      
-            return farmer!;
-        }
-        public async Task<IEnumerable<FarmerRatingResponse>> GetFarmerRatings(int id, CancellationToken cancellation)
-        {
+                .Where(x => x.User.IsActive && x.UserId == userId)
+                .Include(r => r.Ratings).AsNoTracking()
+                //.ProjectToType<FarmerResponse>()
+                .Select(f => new FarmerResponse
+                (
+                   f.UserId,
+                   f.User.FName,
+                   f.User.LName,
+                   f.ProfessionalDescription,
+                   f.Ratings.Select(r => new FarmerRatingResponse(r.Id ,r.Rating, r.Review))
+                ))
+                .FirstOrDefaultAsync(cancellation);
 
+            
+            return farmer!;
+        }
+        public async Task<FarmerResponse> GetFarmerByUser(string userId, CancellationToken cancellation)
+        {
+            var farmer = await _context.FarmerProfiles
+                 .Where(x => x.User.IsActive && x.UserId == userId)
+                 .Include(r => r.Ratings).AsNoTracking()
+                  //.ProjectToType<FarmerResponse>()
+                  .Select(f => new FarmerResponse
+                (
+                   f.UserId,
+                   f.User.FName,
+                   f.User.LName,
+                   f.ProfessionalDescription,
+                   f.Ratings.Select(r => new FarmerRatingResponse(r.Id, r.Rating, r.Review))
+                ))
+                 .FirstOrDefaultAsync(cancellation);
+
+            return farmer!;
+        }
+        public async Task<IEnumerable<FarmerRatingResponse>> GetFarmerRatings(string UserId, CancellationToken cancellation)
+        {
             var ratings = await _context.FarmerProfiles
-                .Where(x => x.Id == id)
+                .Where(x => x.UserId == UserId)
                 .SelectMany(f => f.Ratings).AsNoTracking()
                 .ProjectToType<FarmerRatingResponse>()
                 .ToListAsync(cancellation);
@@ -52,20 +70,18 @@ namespace Graduation.Services
             return ratings.Adapt<IEnumerable<FarmerRatingResponse>>();
         }
 
-        public async Task<FarmerRatingResponse?> CreateRatingRequest(FarmerRatingRequest request, int Id, CancellationToken cancellation)
+        public async Task<FarmerRatingResponse?> CreateRatingRequest(FarmerRatingRequest request, string UserId, CancellationToken cancellation)
         {
-            var userId = GetUserId();
 
-            var rating = await _context.FarmerProfiles.SingleOrDefaultAsync(f=>f.Id == Id);
+            var rating = await _context.FarmerProfiles.FirstOrDefaultAsync(f => f.UserId == UserId);
             if (rating == null)
                 return null;
 
             var newRating = new FarmerRating
             {
-                UserId = userId,
                 Rating = request.Rating,
                 Review = request.Review,
-                FarmerId = Id
+                FarmerId = UserId
             };
 
             await _context.FarmerRatings.AddAsync(newRating, cancellation);
@@ -74,48 +90,49 @@ namespace Graduation.Services
             return newRating.Adapt<FarmerRatingResponse>();
         }
 
-        public async Task<FarmerResponse> CreateFarmerProfile(FarmerRequest request, CancellationToken cancellation)
+        public async Task<FarmerResponse> CreateFarmerProfile(string professionalDescription, CancellationToken cancellation)
         {
             var userId = GetUserId();
-            
+
             var farmer = new FarmerProfile
             {
                 UserId = userId,
-                Name = request.Name,
-                ProfessionalDescription = request.ProfessionalDescription
+                ProfessionalDescription = professionalDescription
             };
-          
+
             await _context.FarmerProfiles.AddAsync(farmer, cancellation);
             await _context.SaveChangesAsync();
             return farmer.Adapt<FarmerResponse>();
         }
 
-      
-        public async Task<FarmerResponse> UpdateFarmer(FarmerRequest request, CancellationToken cancellation)
+
+        public async Task<bool> UpdateFarmer(FarmerRequest request, CancellationToken cancellation)
         {
             var userId = GetUserId();
-            
-            var Oldfarmer =await _context.FarmerProfiles.SingleOrDefaultAsync(x => x.UserId == userId);
+
+            var Oldfarmer = await _context.FarmerProfiles.FirstOrDefaultAsync(x => x.UserId == userId);
 
 
-            Oldfarmer!.Name = request.Name;
-               Oldfarmer.ProfessionalDescription = request.ProfessionalDescription;
-            
+            Oldfarmer!.ProfessionalDescription = request.ProfessionalDescription;
+
             _context.FarmerProfiles.Update(Oldfarmer);
             await _context.SaveChangesAsync(cancellation);
 
-            return Oldfarmer.Adapt<FarmerResponse>();
+            return true;
         }
-
-        public async Task Toggle( CancellationToken cancellation)
+          
+        public async Task<bool> Toggle(CancellationToken cancellation)
         {
             var userId = GetUserId();
-           
-            var farmer =await _context.FarmerProfiles.SingleOrDefaultAsync(x => x.UserId == userId);
 
-            farmer!.IsActive = !farmer.IsActive;
+            var farmer = await _context.FarmerProfiles.Include(x=>x.User)
+                .FirstOrDefaultAsync(x => x.UserId == userId);
+            if (farmer == null)
+                return false;
+
+            farmer!.User.IsActive = !farmer.User.IsActive;  
             await _context.SaveChangesAsync(cancellation);
-            return;
+            return true;
         }
 
         public string GetUserId()
@@ -123,6 +140,6 @@ namespace Graduation.Services
             return _accessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty;
         }
 
-      
+
     }
 }

@@ -2,7 +2,6 @@
 {
     public record FarmerRequest
     (
-        string Name,
         string? ProfessionalDescription
      );
 }

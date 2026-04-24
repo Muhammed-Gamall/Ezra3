@@ -9,14 +9,14 @@ namespace Graduation.Services
     public interface IPlantService
     {
         Task<IEnumerable<PlantResponse?>> GetAllAsync(PlantCategory category, CancellationToken cancellation);
-        Task<PlantResponse?> GetByIdAsync(int Id,CancellationToken cancellation);
-        Task<PlantResponse> CreatAsync(PlantRequest request , CancellationToken cancellation);
-        Task<bool> UpdateAsync(PlantRequest request, int plantId , CancellationToken cancellation);
-        Task<bool> ToggleAsync( int plantId, CancellationToken cancellation);
+        Task<PlantResponse?> GetByIdAsync(int Id, CancellationToken cancellation);
+        Task<PlantResponse> CreatAsync(PlantRequest request, CancellationToken cancellation);
+        Task<bool> UpdateAsync(PlantRequest request, int plantId, CancellationToken cancellation);
+        Task<bool> ToggleAsync(int plantId, CancellationToken cancellation);
 
     }
 
-    public class PlantService(ApplicationDbContext context  , IHttpContextAccessor accessor , Cloudinary cloudinary) : IPlantService
+    public class PlantService(ApplicationDbContext context, IHttpContextAccessor accessor, Cloudinary cloudinary) : IPlantService
     {
         private readonly ApplicationDbContext _context = context;
         private readonly IHttpContextAccessor _accessor = accessor;
@@ -24,9 +24,9 @@ namespace Graduation.Services
 
         public async Task<IEnumerable<PlantResponse?>> GetAllAsync(PlantCategory category, CancellationToken cancellation)
         {
-            var plants= await _context.Plants
+            var plants = await _context.Plants
                 .Where(p => p.Category == category && p.IsActive == true)
-                .Include(x=>x.Images).AsNoTracking()
+                .Include(x => x.Images).AsNoTracking()
                   .Select(p => new PlantResponse
                  (
                      p.Id,
@@ -45,12 +45,12 @@ namespace Graduation.Services
             return plants;
         }
 
-        public async Task<PlantResponse?> GetByIdAsync(int Id ,CancellationToken cancellation)
+        public async Task<PlantResponse?> GetByIdAsync(int Id, CancellationToken cancellation)
         {
-            var plant =await _context.Plants
-                .Where(x=>x.Id == Id && x.IsActive == true)
+            var plant = await _context.Plants
+                .Where(x => x.Id == Id && x.IsActive == true)
                 .Include(x => x.Images).AsNoTracking()
-                .Select(p=> new PlantResponse
+                .Select(p => new PlantResponse
                  (
                      p.Id,
                      p.Name,
@@ -61,13 +61,13 @@ namespace Graduation.Services
                      p.CareTips!,
                      p.Price,
                      p.PlantingServicePrice,
-                     p.Images.Where(i=>i.IsActive == true).Select(i => new PhotoResponse ( i.Id, i.Photo! )).ToList()
+                     p.Images.Where(i => i.IsActive == true).Select(i => new PhotoResponse(i.Id, i.Photo!)).ToList()
                ))
                 //.ProjectToType<PlantResponse>()
                 .FirstOrDefaultAsync(cancellation);
             return plant;
         }
-      
+
         public string ComputeFileHash(IFormFile file)
         {
             using var sha256 = System.Security.Cryptography.SHA256.Create();
@@ -108,10 +108,10 @@ namespace Graduation.Services
             // adding images after check for duplicates
             foreach (var image in request.Image)
             {
-              var hash =ComputeFileHash(image);
-                if(plant.Images.Any(i=>i.HashCode == hash))
+                var hash = ComputeFileHash(image);
+                if (plant.Images.Any(i => i.HashCode == hash))
                     continue;
-               var url= UpluodImage(image);
+                var url = UpluodImage(image);
                 plant.Images.Add(new PlantPhoto
                 {
                     Photo = url,
@@ -120,7 +120,7 @@ namespace Graduation.Services
             }
 
             await _context.Plants.AddAsync(plant, cancellation);
-             await _context.SaveChangesAsync(cancellation);
+            await _context.SaveChangesAsync(cancellation);
 
             return plant.Adapt<PlantResponse>();
         }
@@ -158,7 +158,7 @@ namespace Graduation.Services
             //        plant.Images.Add(new PlantPhoto { Photo = url });
             //}
             //var requestImageHashCodes = request.Image.Select(ComputeFileHash).ToList();
-            var requestImageHashCodes =new List<string>();
+            var requestImageHashCodes = new List<string>();
 
             foreach (var image in request.Image)
             {
@@ -174,7 +174,7 @@ namespace Graduation.Services
                 requestImageHashCodes.Add(hash);
 
             }
-            plant.Images.ToList().ForEach(i => 
+            plant.Images.ToList().ForEach(i =>
             {
                 i.IsActive = requestImageHashCodes.Contains(i.HashCode!);
             });
@@ -183,12 +183,12 @@ namespace Graduation.Services
             return true;
         }
 
-        public async Task<bool> ToggleAsync( int plantId, CancellationToken cancellation)
+        public async Task<bool> ToggleAsync(int plantId, CancellationToken cancellation)
         {
-            var plant =await _context.Plants.SingleOrDefaultAsync(p => p.Id == plantId);
+            var plant = await _context.Plants.SingleOrDefaultAsync(p => p.Id == plantId);
             if (plant == null)
                 return false;
-            
+
             plant.IsActive = !plant.IsActive;
             await _context.SaveChangesAsync(cancellation);
             return true;
