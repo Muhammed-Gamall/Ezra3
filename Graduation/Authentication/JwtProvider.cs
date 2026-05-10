@@ -21,8 +21,7 @@ namespace Graduation.Authentication
         {
                 new (JwtRegisteredClaimNames.Sub, user.Id),
                 new (JwtRegisteredClaimNames.Email, user.Email!),
-                new (JwtRegisteredClaimNames.GivenName, user.FName),
-                new (JwtRegisteredClaimNames.FamilyName, user.LName),
+                new (JwtRegisteredClaimNames.GivenName, user.FullName),
                 new (JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
 

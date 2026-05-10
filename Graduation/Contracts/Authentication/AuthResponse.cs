@@ -4,8 +4,7 @@
     (
         string Id,
         string Email,
-        string FName,
-        string LName,
+        string FullName,
         string Token,
         int TokenExpiration,
         string RefreshToken,

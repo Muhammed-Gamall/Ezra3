@@ -2,8 +2,8 @@
 {
     public record OrderItemResponse
     (
-        int Id,
-        string PlantName
-    
+        int id,
+        string PlantName,
+        int Quantity
     );
 }

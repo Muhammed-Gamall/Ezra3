@@ -2,7 +2,6 @@
 {
     public record OrderRequest
      (
-
         string HouseNum,
         string LandMark,
         string Street,
@@ -14,6 +13,6 @@
         string Phone,
         string? Notes,
         bool RequiresPlanting,
-        List<OrderItemRequest> Items
+        List<BundleItemRequest> Items
         );
 }

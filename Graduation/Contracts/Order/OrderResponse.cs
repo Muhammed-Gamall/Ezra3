@@ -16,8 +16,7 @@
         string Phone,
         string? Notes,
         bool RequiresPlanting,
-        string? FarmerFName,
-        string? FarmerLName,
+        string? FarmerName,
         string Status,
         IEnumerable<OrderItemResponse> Items
 

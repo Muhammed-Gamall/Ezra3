@@ -16,11 +16,10 @@ namespace Graduation.Services
 
     }
 
-    public class PlantService(ApplicationDbContext context, IHttpContextAccessor accessor, Cloudinary cloudinary) : IPlantService
+    public class PlantService(ApplicationDbContext context, ConstFunc constFunc) : IPlantService
     {
         private readonly ApplicationDbContext _context = context;
-        private readonly IHttpContextAccessor _accessor = accessor;
-        private readonly Cloudinary _cloudinary = cloudinary;
+        private readonly ConstFunc _constFunc = constFunc;
 
         public async Task<IEnumerable<PlantResponse?>> GetAllAsync(PlantCategory category, CancellationToken cancellation)
         {
@@ -68,27 +67,6 @@ namespace Graduation.Services
             return plant;
         }
 
-        public string ComputeFileHash(IFormFile file)
-        {
-            using var sha256 = System.Security.Cryptography.SHA256.Create();
-            using var stream = file.OpenReadStream();
-            var hashBytes = sha256.ComputeHash(stream);
-            return Convert.ToBase64String(hashBytes);
-        }
-        public string UpluodImage(IFormFile file)
-        {
-            var uploadParams = new ImageUploadParams()
-            {
-                File = new FileDescription(file.FileName, file.OpenReadStream())
-            };
-            var uploadResult = _cloudinary.Upload(uploadParams);
-            if (uploadResult.StatusCode == System.Net.HttpStatusCode.OK)
-            {
-                return uploadResult.SecureUrl.ToString();
-            }
-            return string.Empty;
-        }
-
         public async Task<PlantResponse> CreatAsync(PlantRequest request, CancellationToken cancellation)
         {
             var plant = new Plant
@@ -108,10 +86,10 @@ namespace Graduation.Services
             // adding images after check for duplicates
             foreach (var image in request.Image)
             {
-                var hash = ComputeFileHash(image);
+                var hash = _constFunc.ComputeFileHash(image);
                 if (plant.Images.Any(i => i.HashCode == hash))
                     continue;
-                var url = UpluodImage(image);
+                var url = _constFunc.UpluodImage(image);
                 plant.Images.Add(new PlantPhoto
                 {
                     Photo = url,
@@ -162,10 +140,10 @@ namespace Graduation.Services
 
             foreach (var image in request.Image)
             {
-                var hash = ComputeFileHash(image);
+                var hash = _constFunc.ComputeFileHash(image);
                 if (plant.Images.Any(i => i.HashCode == hash))
                     continue;
-                var url = UpluodImage(image);
+                var url = _constFunc.UpluodImage(image);
                 plant.Images.Add(new PlantPhoto
                 {
                     Photo = url,

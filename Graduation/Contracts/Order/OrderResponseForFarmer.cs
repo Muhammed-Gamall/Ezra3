@@ -16,8 +16,7 @@
         string Phone,
         string? Notes,
         bool RequiresPlanting,
-        string CustomerFName,
-        string CustomerLName,
+        string CustomerName,
         string Status,
         IEnumerable<OrderItemResponse> Items
         );

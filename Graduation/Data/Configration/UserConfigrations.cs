@@ -9,8 +9,7 @@ namespace Graduation.Data.Configration
             builder.OwnsMany(x => x.RefreshTokens).ToTable("RefreshTokens")
                 .WithOwner().HasForeignKey("UserId");
 
-            builder.Property(x => x.FName).HasMaxLength(30).IsRequired();
-            builder.Property(x => x.LName).HasMaxLength(30).IsRequired();
+            builder.Property(x => x.FullName).HasMaxLength(30).IsRequired();
         }
     }
 }

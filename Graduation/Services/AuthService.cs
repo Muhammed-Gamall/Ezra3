@@ -41,7 +41,7 @@ namespace Graduation.Services
             });
 
             await _userManager.UpdateAsync(user);
-            return new AuthResponse(user.Id, user.Email!, user.FName, user.LName, token, expiration, newRefreshToken, DateTime.UtcNow.AddDays(_RefreshExpirationDays));
+            return new AuthResponse(user.Id, user.Email!, user.FullName, token, expiration, newRefreshToken, DateTime.UtcNow.AddDays(_RefreshExpirationDays));
 
         }
 
@@ -71,7 +71,7 @@ namespace Graduation.Services
             });
 
             await _userManager.UpdateAsync(user);
-            return new AuthResponse(user.Id, user.Email!, user.FName, user.LName, newToken, expiration, newRefreshToken, DateTime.UtcNow.AddDays(_RefreshExpirationDays));
+            return new AuthResponse(user.Id, user.Email!, user.FullName, newToken, expiration, newRefreshToken, DateTime.UtcNow.AddDays(_RefreshExpirationDays));
         }
         public async Task<AuthResponse?> SignUpAsync(SignUpRequest signUpRequest, CancellationToken cancellationToken)
         {
@@ -83,8 +83,7 @@ namespace Graduation.Services
             {
                 Email = signUpRequest.Email,
                 UserName = signUpRequest.Email,
-                FName = signUpRequest.FName,
-                LName = signUpRequest.LName
+                FullName = signUpRequest.FullName
             };
 
             var result = await _userManager.CreateAsync(user, signUpRequest.Password);
@@ -103,7 +102,7 @@ namespace Graduation.Services
             });
             await _userManager.UpdateAsync(user);
 
-            return new AuthResponse(user.Id, user.Email!, user.FName, user.LName, token, expireIn, refreshToken, refreshTokenExpiry);
+            return new AuthResponse(user.Id, user.Email!, user.FullName, token, expireIn, refreshToken, refreshTokenExpiry);
         }
 
         public string GenerateRefreshToken()

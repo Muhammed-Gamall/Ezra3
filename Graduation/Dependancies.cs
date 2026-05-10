@@ -1,22 +1,27 @@
-﻿namespace Graduation
+﻿using MapsterMapper;
+
+namespace Graduation
 {
     public static class Dependancies 
     {
         public static IServiceCollection AddDependancies (this IServiceCollection services , IConfiguration configuration)
         {
+            services.AddMappingConfig();
             services.AddControllers();
             services.AddOpenApi();
             services.AddCloudinary(configuration);
             services.AddDataBase(configuration);
             services.AddAuth(configuration);
             services.AddScoped<IAuthService, AuthService>();
-
-
-
             services.AddScoped<IPlantService, PlantService>();
             services.AddScoped<IOrderService, OrderService>();
             services.AddScoped<IFarmerService, FarmerService>();
-            //services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IBlogService, BlogService>();
+            services.AddScoped<IDonationService, DonationService>();
+            services.AddScoped<IBundleService, BundleService>();
+            services.AddScoped<ConstFunc>();
+            services.AddHttpContextAccessor();
+
             return services;
         }
         public static IServiceCollection AddDataBase(this IServiceCollection services, IConfiguration configuration)
@@ -81,6 +86,14 @@
             });
 
 
+            return services;
+        }
+
+        private static IServiceCollection AddMappingConfig(this IServiceCollection services)
+        {
+            var config = TypeAdapterConfig.GlobalSettings;
+            config.Scan(Assembly.GetExecutingAssembly());
+            services.AddSingleton<IMapper>(new Mapper(config));
             return services;
         }
     }

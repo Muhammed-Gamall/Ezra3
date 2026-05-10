@@ -1,16 +1,14 @@
 ﻿namespace Graduation.Entities
 {
-    public class OrderItem
+    public class BundleItem
     {
-        public int Id { get; set; }
+      public int Id { get; set; }
 
-        public int OrderId { get; set; }
-        public Order Order { get; set; } = default!;
-
-
+        public int BundleId { get; set; }
+        public Bundle Bundle { get; set; } = default!;
         public int Quantity { get; set; }
+
         public int PlantId { get; set; }
         public Plant Plant { get; set; } = default!;
-
     }
 }

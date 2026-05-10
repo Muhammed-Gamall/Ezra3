@@ -14,15 +14,15 @@ namespace Graduation.Services
 
     }
 
-    public class FarmerService(ApplicationDbContext context, IHttpContextAccessor accessor) : IFarmerService
+    public class FarmerService(ApplicationDbContext context, ConstFunc constFunc) : IFarmerService
     {
         private readonly ApplicationDbContext _context = context;
-        private readonly IHttpContextAccessor _accessor = accessor;
+        private readonly ConstFunc _constFunc = constFunc;
 
 
         public async Task<FarmerResponse> GetFarmerByFarmer(CancellationToken cancellation)
         {
-            var userId = GetUserId();
+            var userId = _constFunc.GetUserId();
 
             var farmer = await _context.FarmerProfiles
                 .Where(x => x.User.IsActive && x.UserId == userId)
@@ -31,8 +31,7 @@ namespace Graduation.Services
                 .Select(f => new FarmerResponse
                 (
                    f.UserId,
-                   f.User.FName,
-                   f.User.LName,
+                   f.User.FullName,
                    f.ProfessionalDescription,
                    f.Ratings.Select(r => new FarmerRatingResponse(r.Id ,r.Rating, r.Review))
                 ))
@@ -50,8 +49,7 @@ namespace Graduation.Services
                   .Select(f => new FarmerResponse
                 (
                    f.UserId,
-                   f.User.FName,
-                   f.User.LName,
+                   f.User.FullName,
                    f.ProfessionalDescription,
                    f.Ratings.Select(r => new FarmerRatingResponse(r.Id, r.Rating, r.Review))
                 ))
@@ -92,7 +90,7 @@ namespace Graduation.Services
 
         public async Task<FarmerResponse> CreateFarmerProfile(string professionalDescription, CancellationToken cancellation)
         {
-            var userId = GetUserId();
+            var userId = _constFunc.GetUserId();
 
             var farmer = new FarmerProfile
             {
@@ -108,7 +106,7 @@ namespace Graduation.Services
 
         public async Task<bool> UpdateFarmer(FarmerRequest request, CancellationToken cancellation)
         {
-            var userId = GetUserId();
+            var userId = _constFunc.GetUserId();
 
             var Oldfarmer = await _context.FarmerProfiles.FirstOrDefaultAsync(x => x.UserId == userId);
 
@@ -123,7 +121,7 @@ namespace Graduation.Services
           
         public async Task<bool> Toggle(CancellationToken cancellation)
         {
-            var userId = GetUserId();
+            var userId = _constFunc.GetUserId();
 
             var farmer = await _context.FarmerProfiles.Include(x=>x.User)
                 .FirstOrDefaultAsync(x => x.UserId == userId);
@@ -135,11 +133,6 @@ namespace Graduation.Services
             return true;
         }
 
-        public string GetUserId()
-        {
-            return _accessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty;
-        }
-
-
+    
     }
 }

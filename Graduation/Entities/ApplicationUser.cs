@@ -2,8 +2,7 @@
 {
     public class ApplicationUser : IdentityUser
     {
-        public string FName { get; set; } = string.Empty;
-        public string LName { get; set; } = string.Empty;
+        public string FullName { get; set; } = string.Empty;
         public bool IsActive { get; set; } = true;
         public bool IsCasualUser { get; set; } = false;
 

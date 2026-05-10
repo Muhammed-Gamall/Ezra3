@@ -8,8 +8,10 @@ namespace Graduation.Entities
         public string? FarmerId { get; set; }
         public FarmerProfile Farmer { get; set; } = default!;  
 
-        public double TotalAmount => Items.Count();
-        public double PaidAmount => Items.Sum(i => (i.Plant.Price + i.Plant.PlantingServicePrice));
+        public double TotalAmount => Items.Sum(i =>(i.Quantity ));
+        public double PaidAmount => Items.Sum(i => ((i.Plant.Price)
+        + (RequiresPlanting ? (i.Plant?.PlantingServicePrice ?? 0) : 0)) * i.Quantity);
+
         public bool RequiresPlanting { get; set; } = false;
         public string HouseNum { get; set; } = string.Empty;
         public string LandMark { get; set; } = string.Empty;

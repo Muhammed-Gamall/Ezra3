@@ -1,4 +1,4 @@
-﻿namespace Graduation.Contracts.Order
+﻿namespace Graduation.Contracts.Bundle
 {
     public record BundleItemRequest
     (

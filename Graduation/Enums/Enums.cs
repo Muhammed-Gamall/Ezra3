@@ -3,7 +3,7 @@
     public enum PlantCategory
     {
         FruitTrees,
-        DecorativeTrees,
+        Decorative,
         Flowers,
         Vegetables,
         Herbs,
@@ -36,5 +36,11 @@
         Shipped,
         Delivered,
         Cancelled
+    }
+    public enum DonationCategory
+    {
+        Decorative,
+        FruitTrees,
+        Shade
     }
 }

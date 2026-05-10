@@ -12,7 +12,9 @@ namespace Graduation.Data
         public DbSet<OrderItem> OrderItems { get; set; } 
         public DbSet<Plant> Plants { get; set; } 
         public DbSet<PlantPhoto> PlantPhotos { get; set; } 
-        //public DbSet<UserProfile> UserProfiles { get; set; }
+        public DbSet<Bundle> Bundles { get; set; }
+        public DbSet<Blog> Blogs { get; set; }
+        public DbSet<Donation> Donations { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

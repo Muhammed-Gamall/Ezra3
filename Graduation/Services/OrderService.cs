@@ -13,15 +13,15 @@ namespace Graduation.Services
         public Task<bool> ChangeOrderStatus(string status, int orderId, CancellationToken cancellation);
         public Task<bool> AddFarmer(string FarmerId, int orderId, CancellationToken cancellation);
     }
-    public class OrderService(ApplicationDbContext context, IHttpContextAccessor accessor) : IOrderService
+    public class OrderService(ApplicationDbContext context, ConstFunc constFunc) : IOrderService
     {
         private readonly ApplicationDbContext _context = context;
-        private readonly IHttpContextAccessor _accessor = accessor;
+        private readonly ConstFunc _constFunc = constFunc;
 
 
         public async Task<IEnumerable<OrderResponse>> GetAllOrdersAsync(CancellationToken cancellation)
         {
-            var userId = GetUserId();
+            var userId = _constFunc.GetUserId();
 
             var orders = await _context.Orders.Where(o => o.CreatedById == userId && o.Status != OrderStatus.Cancelled)
                 .Include(o => o.Items)
@@ -42,10 +42,9 @@ namespace Graduation.Services
                      o.Phone,
                      o.Notes,
                      o.RequiresPlanting,
-                     o.Farmer.User.FName,
-                     o.Farmer.User.LName,
+                     o.Farmer.User.FullName,
                      o.Status.ToString(),
-                     o.Items.Select(i => new OrderItemResponse(i.Id, i.Plant.Name))
+                     o.Items.Select(i => new OrderItemResponse(i.Id, i.Plant.Name , i.Quantity))
 
                 )).ToListAsync();
             return orders;
@@ -53,7 +52,7 @@ namespace Graduation.Services
 
         public async Task<IEnumerable<OrderResponseForFarmer>> GetAllOrdersForFarmer( CancellationToken cancellation)
         {
-            var userId = GetUserId();
+            var userId = _constFunc.GetUserId();
 
             var orders = await _context.Orders.Where(o => o.FarmerId == userId && o.Status != OrderStatus.Cancelled)
             .Include(o => o.Items)
@@ -75,9 +74,8 @@ namespace Graduation.Services
                  o.Notes,
                  o.RequiresPlanting,
                  o.Status.ToString(),
-                 o.CreatedBy.FName,
-                 o.CreatedBy.LName,
-                 o.Items.Select(i => new OrderItemResponse(i.Id, i.Plant.Name))
+                 o.CreatedBy.FullName,
+                 o.Items.Select(i => new OrderItemResponse(i.Id, i.Plant.Name, i.Quantity))
 
             )).ToListAsync();
 
@@ -106,10 +104,9 @@ namespace Graduation.Services
                      o.Phone,
                      o.Notes,
                      o.RequiresPlanting,
-                     o.Farmer.User.FName,
-                     o.Farmer.User.LName,
+                     o.Farmer.User.FullName,
                      o.Status.ToString(),
-                     o.Items.Select(i => new OrderItemResponse(i.Id, i.Plant.Name))
+                     o.Items.Select(i => new OrderItemResponse(i.Id, i.Plant.Name, i.Quantity))
 
                 )).SingleOrDefaultAsync(cancellation);
             return orders;
@@ -137,9 +134,8 @@ namespace Graduation.Services
                o.Notes,
                o.RequiresPlanting,
                o.Status.ToString(),
-               o.CreatedBy.FName,
-               o.CreatedBy.LName,
-               o.Items.Select(i => new OrderItemResponse(i.Id, i.Plant.Name))
+               o.CreatedBy.FullName,
+               o.Items.Select(i => new OrderItemResponse(i.Id, i.Plant.Name, i.Quantity))
 
           )).SingleOrDefaultAsync(cancellation);
 
@@ -167,9 +163,9 @@ namespace Graduation.Services
             if (order == null)
             return false;
 
-            var updatedOrder = request.Adapt(order);
+            request.Adapt(order);
 
-            _context.Orders.Update(updatedOrder!);
+            _context.Orders.Update(order);
             await _context.SaveChangesAsync(cancellation);
 
             return true;
@@ -214,11 +210,5 @@ namespace Graduation.Services
 
             return true;
         }
-
-        public string GetUserId()
-        {
-            return _accessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value!;
-        }
-
     }
 }
