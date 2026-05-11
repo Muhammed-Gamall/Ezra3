@@ -1,4 +1,5 @@
-﻿using Graduation.Contracts.Blog;
+﻿using Graduation.Consts;
+using Graduation.Contracts.Blog;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,6 +12,7 @@ namespace Graduation.Controllers
         private readonly IBlogService _blogService = blogService;
 
         [HttpGet]
+        //[Authorize(Roles = DefaultRoles.Member)]
         public async Task<IActionResult> GetAllBlogs(CancellationToken cancellationToken)
         {
             var blogs = await _blogService.GetAllBlogsAsync(cancellationToken);

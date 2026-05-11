@@ -2,12 +2,13 @@
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
+using System.Text.Json;
 
 namespace Graduation.Authentication
 {
     public interface IJwtProvider
     {
-        public (string token , int expiration) GenerateToken(ApplicationUser user);
+        public (string token , int expiration) GenerateToken(ApplicationUser user, IEnumerable<string> roles);
         public string? ValidateToken(string token);
 
     }
@@ -15,14 +16,15 @@ namespace Graduation.Authentication
     public class JwtProvider(IOptions<OptionPattern> options) : IJwtProvider
     {
         private readonly OptionPattern _options = options.Value;
-        public (string token, int expiration) GenerateToken(ApplicationUser user)
+        public (string token, int expiration) GenerateToken(ApplicationUser user, IEnumerable<string> roles)
         {
             Claim[] claims = new Claim[]
         {
                 new (JwtRegisteredClaimNames.Sub, user.Id),
                 new (JwtRegisteredClaimNames.Email, user.Email!),
                 new (JwtRegisteredClaimNames.GivenName, user.FullName),
-                new (JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                new (JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                 new Claim(nameof(roles), JsonSerializer.Serialize(roles), JsonClaimValueTypes.JsonArray),
         };
 
             var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.key));

@@ -1,4 +1,5 @@
 ﻿using Azure.Core;
+using Graduation.Consts;
 using Graduation.Contracts.Authentication;
 using System.Security.Cryptography;
 
@@ -6,13 +7,9 @@ namespace Graduation.Services
 {
     public interface IAuthService
     {
-        public Task<AuthResponse?> SignUpAsync(SignUpRequest signUpRequest , CancellationToken cancellationToken);
-
+        public Task<AuthResponse?> SignUpAsync(SignUpRequest signUpRequest , string role, CancellationToken cancellationToken);
         public Task<AuthResponse?> LoginAsync(LoginRequest request, CancellationToken cancellationToken);
-
         public Task<AuthResponse?> GetRefreshTokenAsync(string token, string refreshToken);
-
-
     }
 
     public class AuthService(UserManager<ApplicationUser> userManager, IJwtProvider jwtProvider) : IAuthService
@@ -30,8 +27,8 @@ namespace Graduation.Services
             var isPasswordValid = await _userManager.CheckPasswordAsync(user, request.Password);
             if (!isPasswordValid) return null;
 
-
-            var (token, expiration) = _jwtProvider.GenerateToken(user);
+            var roles = await _userManager.GetRolesAsync(user);
+            var (token, expiration) = _jwtProvider.GenerateToken(user , roles);
             var newRefreshToken = GenerateRefreshToken();
 
             user.RefreshTokens.Add(new RefreshToken
@@ -61,7 +58,8 @@ namespace Graduation.Services
 
             ExistingRefreshToken.RevokedOn = DateTime.UtcNow;
 
-            var (newToken, expiration) = _jwtProvider.GenerateToken(user);
+            var roles = await _userManager.GetRolesAsync(user);
+            var (newToken, expiration) = _jwtProvider.GenerateToken(user, roles);
             var newRefreshToken = GenerateRefreshToken();
 
             user.RefreshTokens.Add(new RefreshToken
@@ -73,7 +71,7 @@ namespace Graduation.Services
             await _userManager.UpdateAsync(user);
             return new AuthResponse(user.Id, user.Email!, user.FullName, newToken, expiration, newRefreshToken, DateTime.UtcNow.AddDays(_RefreshExpirationDays));
         }
-        public async Task<AuthResponse?> SignUpAsync(SignUpRequest signUpRequest, CancellationToken cancellationToken)
+        public async Task<AuthResponse?> SignUpAsync(SignUpRequest signUpRequest , string role, CancellationToken cancellationToken)
         {
             var IsEmailExist = await _userManager.FindByEmailAsync(signUpRequest.Email);
             if (IsEmailExist != null)
@@ -90,7 +88,8 @@ namespace Graduation.Services
             if (!result.Succeeded)
                 return null;
 
-            var (token, expireIn) = _jwtProvider.GenerateToken(user);
+            var roles = await _userManager.GetRolesAsync(user);
+            var (token, expireIn) = _jwtProvider.GenerateToken(user, roles);
 
             var refreshToken = GenerateRefreshToken();
             var refreshTokenExpiry = DateTime.UtcNow.AddDays(_RefreshExpirationDays);
@@ -100,7 +99,10 @@ namespace Graduation.Services
                 Token = refreshToken,
                 ExpiresOn = refreshTokenExpiry
             });
+
+            await _userManager.AddToRoleAsync(user , role);
             await _userManager.UpdateAsync(user);
+
 
             return new AuthResponse(user.Id, user.Email!, user.FullName, token, expireIn, refreshToken, refreshTokenExpiry);
         }

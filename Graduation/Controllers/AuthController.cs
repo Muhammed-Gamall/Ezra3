@@ -29,9 +29,9 @@ namespace Graduation.Controllers
         }
 
         [HttpPost("Register")]
-        public async Task<IActionResult> RegisterAsync(SignUpRequest Request, CancellationToken cancellationToken)
+        public async Task<IActionResult> RegisterAsync(SignUpRequest Request, string Role, CancellationToken cancellationToken)
         {
-            var result = await _authService.SignUpAsync(Request, cancellationToken);
+            var result = await _authService.SignUpAsync(Request, Role, cancellationToken);
 
             return result is null ? BadRequest("Registration failed") : Ok(result);
         }
